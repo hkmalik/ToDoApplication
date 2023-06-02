@@ -1,85 +1,14 @@
-const pool = require("../database")
+const { createUser, getUsers, login,create_Task, getTask } = require('../contollers/user')
+const router = require("express").Router();
+const { checkToken } = require('../tokenValidation');
 
-module.exports = {
-    create: (data, callBack) => {
-
-        pool.query(
-            "INSERT INTO users (name,username,email, password,isactive_key) VALUES (?, ?, ?, ?,?)",
-            [
-                data.name,
-                data.username,
-                data.email,
-                data.password,
-                data.isActiveKey
-            ],
-            (error, results) => {
-                if (error) {
-                    return callBack(error)
-                }
-                return callBack(null, results)
-            }
-        );
-    },
-    getUsers: (callBack) => {
-        pool.query
-            (
-                `SELECT  * from users`,
-                [],
-                (error, result, field) => {
-                    if (error) {
-                        callBack(error)
-                    }
-                    return callBack(null, result);
-
-                }
-            );
-
-    },
-    getLoginUser: (email, callBack) => {
-        pool.query('SELECT * FROM users WHERE email= ?',
-            [email],
-            (error, results, field) => {
-                if (error) {
-                    return (error);
-                }
-                return callBack(null, results[0]);
-            }
-        )
-    },
-    createTask: (data, callBack) => {
-        pool.query(
-            "INSERT INTO tasks (user_id,task_name,description,status) VALUES (?, ?, ?, ?)",
-            [
-                data.user_id,
-                data.task_name,
-                data.description,
-                data.status,
-            ],
-            (error, results) => {
-                if (error) {
-                    return callBack(error)
-                }
-                return callBack(null, results)
-            }
-        );
-    },
-    getTask: (callBack) => {
-        pool.query(
-            "SELECT * FROM tasks "
-       ,
-            [],
-            (error, results, field) => {
-                if (error) {
-                    callBack(error)
-                }
-                else {
-                    callBack(null, results)
-                }
-            }
-            )
-
-
-
-    },
-}
+router.post('/save', checkToken, createUser);
+router.get('/get', checkToken, getUsers);
+router.post('/tasks',checkToken,create_Task);
+router.get('/gettask',checkToken,getTask);
+router.post('/login',login,(req,res)=>{
+    res.redirect('/homepage')
+});
+ 
+module.exports = router;
 
